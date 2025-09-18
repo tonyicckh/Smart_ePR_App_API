@@ -3,10 +3,6 @@
   "WorkspaceRootPath": "D:\\ICCKH\\Smart Project\\Source Code\\ePR_App_Api\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{9E4AE7EE-0F27-47B7-A955-6828E3AAE8B9}|ePR_App_Api\\ePR_App_Api.csproj|d:\\icckh\\smart project\\source code\\epr_app_api\\epr_app_api\\controllers\\filecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9E4AE7EE-0F27-47B7-A955-6828E3AAE8B9}|ePR_App_Api\\ePR_App_Api.csproj|solutionrelative:epr_app_api\\controllers\\filecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{9E4AE7EE-0F27-47B7-A955-6828E3AAE8B9}|ePR_App_Api\\ePR_App_Api.csproj|d:\\icckh\\smart project\\source code\\epr_app_api\\epr_app_api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{9E4AE7EE-0F27-47B7-A955-6828E3AAE8B9}|ePR_App_Api\\ePR_App_Api.csproj|solutionrelative:epr_app_api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
@@ -21,6 +17,14 @@
     {
       "AbsoluteMoniker": "D:0:0:{9E4AE7EE-0F27-47B7-A955-6828E3AAE8B9}|ePR_App_Api\\ePR_App_Api.csproj|d:\\icckh\\smart project\\source code\\epr_app_api\\epr_app_api\\controllers\\purchaseordercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{9E4AE7EE-0F27-47B7-A955-6828E3AAE8B9}|ePR_App_Api\\ePR_App_Api.csproj|solutionrelative:epr_app_api\\controllers\\purchaseordercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9E4AE7EE-0F27-47B7-A955-6828E3AAE8B9}|ePR_App_Api\\ePR_App_Api.csproj|d:\\icckh\\smart project\\source code\\epr_app_api\\epr_app_api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9E4AE7EE-0F27-47B7-A955-6828E3AAE8B9}|ePR_App_Api\\ePR_App_Api.csproj|solutionrelative:epr_app_api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9E4AE7EE-0F27-47B7-A955-6828E3AAE8B9}|ePR_App_Api\\ePR_App_Api.csproj|d:\\icckh\\smart project\\source code\\epr_app_api\\epr_app_api\\data\\adservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9E4AE7EE-0F27-47B7-A955-6828E3AAE8B9}|ePR_App_Api\\ePR_App_Api.csproj|solutionrelative:epr_app_api\\data\\adservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -30,37 +34,50 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "FileController.cs",
-              "DocumentMoniker": "D:\\ICCKH\\Smart Project\\Source Code\\ePR_App_Api\\ePR_App_Api\\Controllers\\FileController.cs",
-              "RelativeDocumentMoniker": "ePR_App_Api\\Controllers\\FileController.cs",
-              "ToolTip": "D:\\ICCKH\\Smart Project\\Source Code\\ePR_App_Api\\ePR_App_Api\\Controllers\\FileController.cs",
-              "RelativeToolTip": "ePR_App_Api\\Controllers\\FileController.cs",
-              "ViewState": "AgIAAC0AAAAAAAAAAAAYwDoAAAAoAAAAAAAAAA==",
+              "DocumentIndex": 4,
+              "Title": "AuthController.cs",
+              "DocumentMoniker": "D:\\ICCKH\\Smart Project\\Source Code\\ePR_App_Api\\ePR_App_Api\\Controllers\\AuthController.cs",
+              "RelativeDocumentMoniker": "ePR_App_Api\\Controllers\\AuthController.cs",
+              "ToolTip": "D:\\ICCKH\\Smart Project\\Source Code\\ePR_App_Api\\ePR_App_Api\\Controllers\\AuthController.cs",
+              "RelativeToolTip": "ePR_App_Api\\Controllers\\AuthController.cs",
+              "ViewState": "AgIAABQAAAAAAAAAAAAAwCQAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-10T06:11:42.817Z",
+              "WhenOpened": "2025-09-16T02:46:21.144Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 5,
+              "Title": "ADService.cs",
+              "DocumentMoniker": "D:\\ICCKH\\Smart Project\\Source Code\\ePR_App_Api\\ePR_App_Api\\Data\\ADService.cs",
+              "RelativeDocumentMoniker": "ePR_App_Api\\Data\\ADService.cs",
+              "ToolTip": "D:\\ICCKH\\Smart Project\\Source Code\\ePR_App_Api\\ePR_App_Api\\Data\\ADService.cs",
+              "RelativeToolTip": "ePR_App_Api\\Data\\ADService.cs",
+              "ViewState": "AgIAAEUAAAAAAAAAAAAiwE4AAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-16T02:45:27.946Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
               "Title": "appsettings.json",
               "DocumentMoniker": "D:\\ICCKH\\Smart Project\\Source Code\\ePR_App_Api\\ePR_App_Api\\appsettings.json",
               "RelativeDocumentMoniker": "ePR_App_Api\\appsettings.json",
               "ToolTip": "D:\\ICCKH\\Smart Project\\Source Code\\ePR_App_Api\\ePR_App_Api\\appsettings.json",
               "RelativeToolTip": "ePR_App_Api\\appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAGAAAAAAAAAA==",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAABkAAAAyAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
               "WhenOpened": "2025-09-10T06:06:06.969Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 1,
               "Title": "Program.cs",
               "DocumentMoniker": "D:\\ICCKH\\Smart Project\\Source Code\\ePR_App_Api\\ePR_App_Api\\Program.cs",
               "RelativeDocumentMoniker": "ePR_App_Api\\Program.cs",
@@ -73,27 +90,29 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 3,
               "Title": "PurchaseOrderController.cs",
               "DocumentMoniker": "D:\\ICCKH\\Smart Project\\Source Code\\ePR_App_Api\\ePR_App_Api\\Controllers\\PurchaseOrderController.cs",
               "RelativeDocumentMoniker": "ePR_App_Api\\Controllers\\PurchaseOrderController.cs",
               "ToolTip": "D:\\ICCKH\\Smart Project\\Source Code\\ePR_App_Api\\ePR_App_Api\\Controllers\\PurchaseOrderController.cs",
               "RelativeToolTip": "ePR_App_Api\\Controllers\\PurchaseOrderController.cs",
-              "ViewState": "AgIAABYAAAAAAAAAAAAQwB0AAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAANgAAAAAAAAAAAAowO8AAAAqAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-29T08:26:47.842Z"
+              "WhenOpened": "2025-08-29T08:26:47.842Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 2,
               "Title": "PurchaseRequestController.cs",
               "DocumentMoniker": "D:\\ICCKH\\Smart Project\\Source Code\\ePR_App_Api\\ePR_App_Api\\Controllers\\PurchaseRequestController.cs",
               "RelativeDocumentMoniker": "ePR_App_Api\\Controllers\\PurchaseRequestController.cs",
               "ToolTip": "D:\\ICCKH\\Smart Project\\Source Code\\ePR_App_Api\\ePR_App_Api\\Controllers\\PurchaseRequestController.cs",
               "RelativeToolTip": "ePR_App_Api\\Controllers\\PurchaseRequestController.cs",
-              "ViewState": "AgIAAB4AAAAAAAAAAAAYwDAAAAAmAAAAAAAAAA==",
+              "ViewState": "AgIAAL4AAAAAAAAAAAAkwMwAAAAwAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-29T08:25:23.926Z"
+              "WhenOpened": "2025-08-29T08:25:23.926Z",
+              "EditorCaption": ""
             }
           ]
         }

@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ePR_App_Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+12a1a71302406042bb9bdd44813817babc52b35f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+113c9f80305254c05abd70ccd1ac3860e9870edc")]
 [assembly: System.Reflection.AssemblyProductAttribute("ePR_App_Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ePR_App_Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -191,6 +191,9 @@ namespace ePR_App_Api.Controllers
                 var attachment = await dbContext.Attachments.Where(x => x.DocId == header.DocKey.ToString() && x.DocType == "PR").ToListAsync();
                 var changelog = await dbContext.VDocumentChangeLogs.Where(x => x.BaseDocNum == header.DocKey.ToString() && x.BaseType == "PR").ToListAsync();
                 var comment = await dbContext.VDocumentComments.Where(x => x.BaseDocNum == header.DocKey.ToString() && x.BaseType == "PR").ToListAsync();
+                var hrt = await dbContext.Prhrts.Where(x => x.DocKey == header.DocKey).FirstOrDefaultAsync();
+                var evaluation =await dbContext.Evaluations.Where(x => x.DocKey == header.DocKey).FirstOrDefaultAsync();
+                var hrtoption = await dbContext.HighRisks.Where(x => x.Status == "Active").ToListAsync();
                 return Ok(new
                 {
                     success = true,
@@ -202,6 +205,10 @@ namespace ePR_App_Api.Controllers
                         attachment = attachment,
                         changelog = changelog,
                         comment = comment,
+                        hrt= hrt,
+                        evaluation=evaluation,
+                        hrtoption= hrtoption
+                        
                     }
                 });
             }

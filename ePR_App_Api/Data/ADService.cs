@@ -1,4 +1,5 @@
 ﻿using System.DirectoryServices;
+using Microsoft.Extensions.Configuration;
 
 namespace ePR_App_Api.Data
 {
@@ -22,7 +23,12 @@ namespace ePR_App_Api.Data
                     string serviceUser = _config["ActiveDirectory:ServiceUser"];
                     string servicePassword = _config["ActiveDirectory:ServicePassword"];
 
-                    _directoryEntry = new DirectoryEntry(ldapPath, serviceUser, servicePassword, AuthenticationTypes.None);
+                    _directoryEntry = new DirectoryEntry(
+                        ldapPath,
+                        serviceUser,
+                        servicePassword,
+                        AuthenticationTypes.Secure
+                    );
                 }
                 return _directoryEntry;
             }
@@ -37,6 +43,7 @@ namespace ePR_App_Api.Data
                 searcher.PropertiesToLoad.Add("displayName");
                 searcher.PropertiesToLoad.Add("sAMAccountName");
                 searcher.PropertiesToLoad.Add("mail");
+                searcher.PropertiesToLoad.Add("distinguishedName");
 
                 return searcher.FindOne();
             }
@@ -49,13 +56,40 @@ namespace ePR_App_Api.Data
 
             try
             {
-                // Always bind with Distinguished Name (DN)
+                string domain = _config["ActiveDirectory:Domain"]; // e.g. "SMART"
+
+                // Make sure required properties exist
+                if (userResult.Properties["sAMAccountName"].Count == 0 ||
+                    userResult.Properties["distinguishedName"].Count == 0)
+                    return false;
+
+                string samAccountName = userResult.Properties["sAMAccountName"][0].ToString();
                 string userDn = userResult.Properties["distinguishedName"][0].ToString();
 
-                using (var entry = new DirectoryEntry($"LDAP://{userDn}", login, password, AuthenticationTypes.Secure))
+                // 1️⃣ Try bind using distinguishedName + password
+                try
                 {
-                    var obj = entry.NativeObject; // Force bind
+                    using var entry = new DirectoryEntry($"LDAP://{userDn}", samAccountName, password, AuthenticationTypes.Secure);
+                    var obj = entry.NativeObject; // force bind
                     return true;
+                }
+                catch
+                {
+                    // 2️⃣ Fallback: DOMAIN\username + password
+                    try
+                    {
+                        using var entry = new DirectoryEntry(
+                            _config["ActiveDirectory:LdapPath"],
+                            $"{domain}\\{samAccountName}",
+                            password,
+                            AuthenticationTypes.Secure);
+                        var obj = entry.NativeObject;
+                        return true;
+                    }
+                    catch
+                    {
+                        return false;
+                    }
                 }
             }
             catch
@@ -63,5 +97,6 @@ namespace ePR_App_Api.Data
                 return false;
             }
         }
+
     }
 }
