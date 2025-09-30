@@ -1,10 +1,12 @@
-﻿using System.Data;
-using ePR_App_Api.Data;
+﻿using ePR_App_Api.Data;
 using ePR_App_Api.Models;
+using FirebaseAdmin.Messaging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
+using System.Data;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace ePR_App_Api.Controllers
 {
@@ -23,7 +25,7 @@ namespace ePR_App_Api.Controllers
             _tokenService = tokenService;
             app = _app;
         }
-
+    
         [HttpGet("GetPRList")]
         public async Task<IActionResult> GetPRList(string userCode,DateTime? fromDate,DateTime? toDate,string? search,string? searchType,string? division,string? status,string? isRed,string? isYellow,string? isGreen,string? isNA,int start,int limit)
         {
@@ -79,6 +81,174 @@ namespace ePR_App_Api.Controllers
         }
 
 
+        [HttpGet("Send_Notification")] // keeping GET since you call it at login
+        public async Task<IActionResult> Send_Notification(string userCode, string Not_Title, string Not_Body, string DocNum, string DocKey,string doctype)
+        {
+            try
+            {
+
+                var topic = $"user_{userCode}"; // match the topic subscribe to in Flutter
+
+                var msg = new Message
+                {
+                    Topic = topic,
+
+                    // Shows banner in background/terminated
+                    Notification = new Notification
+                    {
+                        //Title = $"PR Approval Needed {x.Nextapprover}",
+                        //Body = $"You have a new PR ({x.DocNum}) to approve."
+                        Title = Not_Title,
+                        Body = Not_Body
+
+                    },
+
+                    // Always include data for navigation on tap
+                    Data = new Dictionary<string, string>
+                    {
+                        ["type"] = doctype,
+                        ["docNum"] = DocNum ?? "",
+                        ["docKey"] = DocKey ?? "",
+                        ["route"] = (doctype=="PR" ? $"/pr/{DocKey}" : $"/pa/{DocKey}")
+                    },
+
+                    Android = new AndroidConfig
+                    {
+                        Priority = Priority.High,
+                        //TTL = TimeSpan.FromHours(6),
+                        CollapseKey = (doctype == "PR" ? "pr_pending" : "pa_pending"),
+                        Notification = new AndroidNotification
+                        {
+                            ChannelId = "high_importance",          // must exist in Flutter
+                            ClickAction = "FLUTTER_NOTIFICATION_CLICK",
+                            Tag = (doctype == "PR" ? $"pr-{DocKey}" : $"pa-{DocKey}")
+                        }
+                    },
+
+                    Apns = new ApnsConfig
+                    {
+                        Headers = new Dictionary<string, string>
+                        {
+                            ["apns-priority"] = "10"               // deliver immediately
+                        },
+                        Aps = new Aps
+                        {
+                            Sound = "default",
+                            Badge = 1,
+                            ThreadId = (doctype == "PR" ? "pr_pending" : "pa_pending")
+                        }
+                    }
+                };
+
+                var id = await FirebaseMessaging.DefaultInstance.SendAsync(msg);
+                Console.WriteLine($"FCM sent to {topic}: {id}");
+
+
+                return Ok(new { success = true, sent = 1 });
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine(ex);
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+
+        //[HttpPost("PRDocumentAction")]
+        //public async Task<IActionResult> PRDocumentAction(List<DocumentAction>? actions)
+        //{
+        //    int total_approved = 0;
+        //    int total_rejected = 0;
+        //    int total_cancelled = 0;
+        //    int total_failed = 0;
+        //    int total_success = 0;
+        //    try
+        //    {
+        //        if (actions != null)
+        //        {
+        //            foreach (var x in actions)
+        //            {
+        //                if (x.DocType == "PR")
+        //                {
+        //                    try
+        //                    {
+        //                        var pr = await dbContext.Prs.Where(a => a.DocKey == x.DocKey).FirstOrDefaultAsync();
+        //                        if (pr != null)
+        //                        {
+        //                            if (x.DocStatus == "Cancelled")
+        //                            {
+        //                                pr.CancelUser = x.CreatedBy;
+        //                                pr.CancelDate = DateTime.Now;
+        //                                pr.Status = "C";
+        //                                pr.Prcolor = 2;
+        //                                total_cancelled++;
+        //                            }
+        //                            else if (x.DocStatus == "Approved")
+        //                            {
+        //                                pr.ApprvedUser = x.CreatedBy;
+        //                                pr.ApprvedDate = DateTime.Now;
+        //                                total_approved++;
+        //                            }
+        //                            else if (x.DocStatus == "Rejected")
+        //                            {
+        //                                pr.RejectUser = x.CreatedBy;
+        //                                pr.RejectDate = DateTime.Now;
+        //                                pr.Status = "R";
+        //                                pr.Prcolor = 2;
+        //                                pr.RejectReason = x.Reason;
+        //                                total_rejected++;
+        //                            }
+        //                            pr.MailAction = "Y";
+        //                            pr.DocAction = "Y";
+        //                            pr.UpdatedDate = DateTime.Now;
+        //                            pr.UpdatedUser = x.CreatedBy;
+        //                            await dbContext.SaveChangesAsync();
+        //                            await dbContext.Database.ExecuteSqlRawAsync("exec ICC_Set_Next_PR_Approver '" + x.DocKey + "','" + x.CreatedBy + "','" + x.DocStatus.Substring(0, 3) + "'");
+        //                            total_success++;
+        //                            await dbContext.Entry(pr).ReloadAsync();
+        //                            var currentPR = await dbContext.Prs.Where(a => a.DocKey == x.DocKey).FirstOrDefaultAsync();
+        //                            var nextApprover = currentPR.Nextapprover;
+
+        //                            DocumentChangeLog change = new DocumentChangeLog();
+        //                            change.BaseDocNum = x.DocNum;
+        //                            change.CreatedDate = DateTime.Now;
+        //                            change.UserCode = x.CreatedBy;
+        //                            change.NewVal = x.DocStatus;
+        //                            change.BaseType = "PR";
+        //                            change.FieldName = x.DocStatus;
+        //                            await dbContext.DocumentChangeLogs.AddAsync(change);
+        //                            await dbContext.SaveChangesAsync();
+        //                        }
+        //                    }
+        //                    catch (Exception ex)
+        //                    {
+        //                        total_failed++;
+        //                    }
+
+        //                }
+        //            }
+        //        }
+        //        return Ok(new
+        //        {
+        //            success = true,
+        //            message = "Success",
+        //            total_approved = total_approved,
+        //            total_cancelled = total_cancelled,
+        //            total_rejected = total_rejected,
+        //            total_success = total_success,
+        //            total_failed = total_failed
+        //        });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, new
+        //        {
+        //            success = false,
+        //            message = "Internal Server Error",
+        //            details = ex.Message
+        //        });
+        //    }
+        //}
 
         [HttpPost("PRDocumentAction")]
         public async Task<IActionResult> PRDocumentAction(List<DocumentAction>? actions)
@@ -88,78 +258,201 @@ namespace ePR_App_Api.Controllers
             int total_cancelled = 0;
             int total_failed = 0;
             int total_success = 0;
+
             try
             {
                 if (actions != null)
                 {
                     foreach (var x in actions)
                     {
-                        if (x.DocType == "PR")
-                        {
-                            try
-                            {
-                                var pr = await dbContext.Prs.Where(a => a.DocKey == x.DocKey).FirstOrDefaultAsync();
-                                if (pr != null)
-                                {
-                                    if (x.DocStatus == "Cancelled")
-                                    {
-                                        pr.CancelUser = x.CreatedBy;
-                                        pr.CancelDate = DateTime.Now;
-                                        pr.Status = "C";
-                                        pr.Prcolor = 2;
-                                        total_cancelled++;
-                                    }
-                                    else if (x.DocStatus == "Approved")
-                                    {
-                                        pr.ApprvedUser = x.CreatedBy;
-                                        pr.ApprvedDate = DateTime.Now;
-                                        total_approved++;
-                                    }
-                                    else if (x.DocStatus == "Rejected")
-                                    {
-                                        pr.RejectUser = x.CreatedBy;
-                                        pr.RejectDate = DateTime.Now;
-                                        pr.Status = "R";
-                                        pr.Prcolor = 2;
-                                        pr.RejectReason = x.Reason;
-                                        total_rejected++;
-                                    }
-                                    pr.MailAction = "Y";
-                                    pr.DocAction = "Y";
-                                    pr.UpdatedDate = DateTime.Now;
-                                    pr.UpdatedUser = x.CreatedBy;
-                                    await dbContext.SaveChangesAsync();
-                                    await dbContext.Database.ExecuteSqlRawAsync("exec ICC_Set_Next_PR_Approver '" + x.DocKey + "','" + x.CreatedBy + "','" + x.DocStatus.Substring(0, 3) + "'");
-                                    total_success++;
+                        if (x.DocType != "PR") continue;
 
-                                    DocumentChangeLog change = new DocumentChangeLog();
-                                    change.BaseDocNum = x.DocNum;
-                                    change.CreatedDate = DateTime.Now;
-                                    change.UserCode = x.CreatedBy;
-                                    change.NewVal = x.DocStatus;
-                                    change.BaseType = "PR";
-                                    change.FieldName = x.DocStatus;
-                                    await dbContext.DocumentChangeLogs.AddAsync(change);
-                                    await dbContext.SaveChangesAsync();
-                                }
-                            }
-                            catch (Exception ex)
+                        try
+                        {
+                            var pr = await dbContext.Prs.FirstOrDefaultAsync(a => a.DocKey == x.DocKey);
+                            if (pr == null)
                             {
                                 total_failed++;
+                                continue;
                             }
 
+                            // --- Update PR header by action -----------------------------------------
+                            if (x.DocStatus == "Cancelled")
+                            {
+                                pr.CancelUser = x.CreatedBy;
+                                pr.CancelDate = DateTime.Now;
+                                pr.Status = "C";
+                                pr.Prcolor = 2;
+                                total_cancelled++;
+                            }
+                            else if (x.DocStatus == "Approved")
+                            {
+                                pr.ApprvedUser = x.CreatedBy;
+                                pr.ApprvedDate = DateTime.Now;
+                                total_approved++;
+                            }
+                            else if (x.DocStatus == "Rejected")
+                            {
+                                pr.RejectUser = x.CreatedBy;
+                                pr.RejectDate = DateTime.Now;
+                                pr.Status = "R";
+                                pr.Prcolor = 2;
+                                pr.RejectReason = x.Reason;
+                                total_rejected++;
+                            }
+
+                            pr.MailAction = "Y";
+                            pr.DocAction = "Y";
+                            pr.UpdatedDate = DateTime.Now;
+                            pr.UpdatedUser = x.CreatedBy;
+                            await dbContext.SaveChangesAsync();
+
+                            // Move workflow pointer (NextApprover) via your SP (parameterized)
+                            await dbContext.Database.ExecuteSqlRawAsync(
+                                "EXEC ICC_Set_Next_PR_Approver {0}, {1}, {2}",
+                                x.DocKey, x.CreatedBy, x.DocStatus.Substring(0, 3)
+                            );
+
+                            total_success++;
+
+                            // Reload and read current state (esp. NextApprover)
+                            await dbContext.Entry(pr).ReloadAsync();
+                            var currentPR = await dbContext.Prs.FirstOrDefaultAsync(a => a.DocKey == x.DocKey);
+                            var nextApprover = currentPR?.Nextapprover;  // null/empty when final approved
+                            var requester = currentPR?.CreatedUser;
+
+                            // Log change
+                            var change = new DocumentChangeLog
+                            {
+                                BaseDocNum = currentPR?.DocNum ?? x.DocNum ?? currentPR?.DocNum ?? currentPR?.DocKey.ToString(),
+                                CreatedDate = DateTime.Now,
+                                UserCode = x.CreatedBy,
+                                NewVal = x.DocStatus,
+                                BaseType = "PR",
+                                FieldName = x.DocStatus
+                            };
+                            await dbContext.DocumentChangeLogs.AddAsync(change);
+                            await dbContext.SaveChangesAsync();
+
+                            if (x.DocStatus == "Approved" || x.DocStatus == "Rejected" || x.DocStatus == "Clarify")
+                            {
+                                var Vpr = await dbContext.VPrs.Where(a => a.DocKey == x.DocKey).FirstOrDefaultAsync();
+                                await Send_Notification((Vpr.Status == "P" ? Vpr.Nextapprover : Vpr.CreatedUser), Vpr.Not_Title, Vpr.Not_Body, Vpr.DocNum, Vpr.DocKey.ToString(), "PR");
+                            }
+
+                                
+
+
+                            //// --- Build strings for notifications -------------------------------------
+                            //string docNo = currentPR?.DocNum ?? x.DocNum ?? currentPR?.DocNum ?? currentPR?.DocKey.ToString() ?? "";
+                            //string purpose =
+                            //    (currentPR?.Remarks ??
+                            //     currentPR?.Remarks ??
+                            //     currentPR?.Remarks ??
+                            //     "").Trim();
+
+                            // "RejectReason" is used as the remark (even for approved case, per request)
+                            //string remark =
+                            //    (x.Reason ??
+                            //     currentPR?.RejectReason ??
+                            //     "").Trim();
+
+                            //string suffixPurpose = string.IsNullOrWhiteSpace(purpose) ? "" : $"{purpose}";
+                            //string suffixRemark = string.IsNullOrWhiteSpace(remark) ? "" : $"{remark}";
+
+                            //// --- CASE LOGIC + NOTIFICATIONS -----------------------------------------
+                            //if (x.DocStatus == "Approved")
+                            //{
+                            //    // CASE 1A: still has a next approver -> notify next approver
+                            //    if (!string.IsNullOrWhiteSpace(nextApprover) &&
+                            //        !string.Equals(nextApprover, requester, StringComparison.OrdinalIgnoreCase))
+                            //    {
+                            //        var topic = $"user_{nextApprover}";
+                            //        var title = "Approver Notification";
+                            //        var body = $"{docNo} is pending for your approval_[{suffixPurpose}]";
+
+                            //        await SendTopicAsync(
+                            //            topic, title, body,
+                            //            new Dictionary<string, string>
+                            //            {
+                            //                ["type"] = "PR",
+                            //                ["docNum"] = docNo,
+                            //                ["docKey"] = currentPR!.DocKey.ToString(),
+                            //                ["route"] = $"/pr/{currentPR.DocKey}",
+                            //                ["purpose"] = purpose,
+                            //                ["remark"] = remark
+                            //            },
+                            //            collapseKey: "pr_pending",
+                            //            tag: $"pr-{currentPR!.DocKey}"
+                            //        );
+                            //    }
+                            //    // CASE 1B: no more approvers -> notify requester (fully approved)
+                            //    else if (!string.IsNullOrWhiteSpace(requester))
+                            //    {
+                            //        var topic = $"user_{requester}";
+                            //        var title = "Requestor Notification";
+                            //        var body = $"{docNo} was approved successfully_[{suffixPurpose}]";
+
+                            //        await SendTopicAsync(
+                            //            topic, title, body,
+                            //            new Dictionary<string, string>
+                            //            {
+                            //                ["type"] = "PR",
+                            //                ["docNum"] = docNo,
+                            //                ["docKey"] = currentPR!.DocKey.ToString(),
+                            //                ["route"] = $"/pr/{currentPR.DocKey}",
+                            //                ["purpose"] = purpose,
+                            //                ["remark"] = remark
+                            //            },
+                            //            collapseKey: "pr_status",
+                            //            tag: $"pr-{currentPR!.DocKey}"
+                            //        );
+                            //    }
+                            //}
+                            //else if (x.DocStatus == "Rejected")
+                            //{
+                            //    // CASE 2: rejected -> notify requester with reason
+                            //    if (!string.IsNullOrWhiteSpace(requester))
+                            //    {
+                            //        var topic = $"user_{requester}";
+                            //        var title = "Requestor Notification";
+                            //        var body = $"{docNo} was rejected_[{suffixRemark}]";
+
+                            //        await SendTopicAsync(
+                            //            topic, title, body,
+                            //            new Dictionary<string, string>
+                            //            {
+                            //                ["type"] = "PR",
+                            //                ["docNum"] = docNo,
+                            //                ["docKey"] = currentPR!.DocKey.ToString(),
+                            //                ["route"] = $"/pr/{currentPR.DocKey}",
+                            //                ["purpose"] = purpose,
+                            //                ["rejectReason"] = remark
+                            //            },
+                            //            collapseKey: "pr_status",
+                            //            tag: $"pr-{currentPR!.DocKey}"
+                            //        );
+                            //    }
+                            //}
+                            //// Optional: add a Cancelled branch notification if desired.
+
+                        }
+                        catch
+                        {
+                            total_failed++;
                         }
                     }
                 }
+
                 return Ok(new
                 {
                     success = true,
                     message = "Success",
-                    total_approved = total_approved,
-                    total_cancelled = total_cancelled,
-                    total_rejected = total_rejected,
-                    total_success = total_success,
-                    total_failed = total_failed
+                    total_approved,
+                    total_cancelled,
+                    total_rejected,
+                    total_success,
+                    total_failed
                 });
             }
             catch (Exception ex)
@@ -172,7 +465,62 @@ namespace ePR_App_Api.Controllers
                 });
             }
         }
-        
+
+        // -----------------------------------------------------------------------------
+        // Helper: send to FCM topic with consistent Android/APNs config
+        // -----------------------------------------------------------------------------
+        private static async Task<string> SendTopicAsync(
+            string topic,
+            string title,
+            string body,
+            Dictionary<string, string> data,
+            string collapseKey,
+            string tag)
+        {
+            var msg = new Message
+            {
+                Topic = topic,
+
+                Notification = new Notification
+                {
+                    Title = title,
+                    Body = body
+                },
+
+                Data = data,
+
+                Android = new AndroidConfig
+                {
+                    Priority = Priority.High,
+                    CollapseKey = collapseKey,
+                    Notification = new AndroidNotification
+                    {
+                        ChannelId = "high_importance",
+                        ClickAction = "FLUTTER_NOTIFICATION_CLICK",
+                        Tag = tag
+                    }
+                },
+
+                Apns = new ApnsConfig
+                {
+                    Headers = new Dictionary<string, string>
+                    {
+                        ["apns-priority"] = "10"
+                    },
+                    Aps = new Aps
+                    {
+                        Sound = "default",
+                        Badge = 1,
+                        ThreadId = collapseKey
+                    }
+                }
+            };
+
+            return await FirebaseMessaging.DefaultInstance.SendAsync(msg);
+        }
+
+
+
         [HttpGet("GetPRDetail")]
         public async Task<IActionResult> GetPRDetail(int? DocKey)
         {
@@ -364,6 +712,7 @@ namespace ePR_App_Api.Controllers
                 });
             }
         }
+
         [HttpPost("AddComment")]
         public async Task<IActionResult> AddComment([FromBody] DocumentComment? comment)
         {
@@ -404,48 +753,81 @@ namespace ePR_App_Api.Controllers
                 });
             }
         }
+
+        // GET: api/PurchaseRequest/addComment
+        [HttpGet("PRGetComments")]
+        public async Task<IActionResult> GetComments(string baseDocNum)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(baseDocNum))
+                {
+                    return BadRequest("Invalid key");
+                }
+                var comment = await dbContext.VDocumentComments.Where(x => x.BaseDocNum == baseDocNum && x.BaseType == "PR").OrderByDescending(x => x.CreatedDate).ToListAsync();
+                return Ok(new
+                {
+                    success = true,
+                    message = "Success",
+                    data = comment
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Internal Server Error",
+                    details = ex.Message
+                });
+            }
+        }
+
+
         [HttpPost("ReplyComment")]
         public async Task<IActionResult> ReplyComment([FromBody] ReplyCommentRequest? request)
         {
             try
             {
+                string ToUser = "";
                 if (request == null)
                 {
                     return BadRequest("Invalid model");
                 }
                 var command = request.Comment;
-                var clarify = request.Clarify;
-                var clarify_user = await dbContext.Users.Where(x => x.Email == request.Clarify.Email).FirstOrDefaultAsync();
-                var pr=await dbContext.Prs.Where(x=>x.DocKey.ToString()==command.BaseDocNum).FirstOrDefaultAsync();
+                //var clarify = request.Clarify;
+                //var clarify_user = await dbContext.Users.Where(x => x.Email == request.Clarify.Email).FirstOrDefaultAsync();
+                var pr = await dbContext.Prs.Where(x => x.DocKey.ToString() == command.BaseDocNum).FirstOrDefaultAsync();
                 if (pr == null)
                 {
                     return NotFound("PR Notfound");
                 }
-                if(pr.CreatedUser==command.UserCode || (pr.Nextapprover==command.UserCode && pr.Status == "F"))
+                if (pr.CreatedUser == command.UserCode && pr.Status == "F")
                 {
-                    if (pr.Nextapprover == command.UserCode)
-                    {
-                        pr.ToEmail =null;
-                        Prclarify pc = new Prclarify();
-                        var u = await dbContext.Users.Where(x => x.UserId == command.UserCode).FirstOrDefaultAsync();
-                        pc.DocKey = pr.DocKey;
-                        pc.UserId = command.UserCode;
-                        pc.Email = u.Email;
-                        pc.CreatedDate = DateTime.Now;
-                        pc.MailStatus = "W";
-                        pc.Comments = command.Comment;
-                        await dbContext.Prclarifies.AddAsync(pc);
-                        await dbContext.SaveChangesAsync();
-                    }
-                    //Requester clarify to approver
+                    //if (pr.Nextapprover == command.UserCode)
+                    //{
+                    //    pr.ToEmail = null;
+                    //    Prclarify pc = new Prclarify();
+                    //    var u = await dbContext.Users.Where(x => x.UserId == command.UserCode).FirstOrDefaultAsync();
+                    //    pc.DocKey = pr.DocKey;
+                    //    pc.UserId = command.UserCode;
+                    //    pc.Email = u.Email;
+                    //    pc.CreatedDate = DateTime.Now;
+                    //    pc.MailStatus = "W";
+                    //    pc.Comments = command.Comment;
+                    //    await dbContext.Prclarifies.AddAsync(pc);
+                    //    await dbContext.SaveChangesAsync();
+                    //}
+                    ////Requester clarify to approver
+                    ToUser = pr.Clarifyuser;
                     pr.Status = "P";
                     pr.Nextapprover = pr.Clarifyuser;
-                    var prapp = await dbContext.Prapprovals.Where(a => a.UserId.Equals(pr.Clarifyuser, StringComparison.CurrentCultureIgnoreCase) && a.DocKey == pr.DocKey).FirstOrDefaultAsync();
-                    if (prapp != null)
-                    {
-                        prapp.MailStatus = "W";
-                        await dbContext.SaveChangesAsync();
-                    }
+                    //var prapp = await dbContext.Prapprovals.Where(a => a.UserId.Equals(pr.Clarifyuser, StringComparison.CurrentCultureIgnoreCase) && a.DocKey == pr.DocKey).FirstOrDefaultAsync();
+                    //if (prapp != null)
+                    //{
+                    //    prapp.MailStatus = "W";
+                    //    await dbContext.SaveChangesAsync();
+                    //}
                     pr.Clarifyuser = pr.CreatedUser;
                 }
                 else
@@ -453,38 +835,42 @@ namespace ePR_App_Api.Controllers
                     //Approver clarify to requester
                     pr.Status = "F";
                     pr.Clarifyuser = pr.Nextapprover;
-                    if (clarify != null)
-                    {
-                        if (clarify_user.UserId == pr.CreatedUser)
-                        {
-                            pr.Nextapprover = pr.CreatedUser;
-                        }
-                        else
-                        {
-                            pr.Nextapprover = clarify_user.UserId;
-                            pr.ToEmail = clarify_user.Email;
-                        }
-                    }
-                    else
-                    {
-                        pr.Nextapprover = pr.CreatedUser;
-                        var prapp = await dbContext.Prapprovals.Where(a => a.UserId.Equals(pr.CreatedUser, StringComparison.CurrentCultureIgnoreCase) && a.DocKey == pr.DocKey).FirstOrDefaultAsync();
-                        if (prapp != null)
-                        {
-                            prapp.MailStatus = "W";
-                            await dbContext.SaveChangesAsync();
-                        }
-                    }
+                    pr.Nextapprover = pr.CreatedUser;
+                    ToUser = pr.CreatedUser;
+                    //if (clarify != null)
+                    //{
+                    //    if (clarify_user.UserId == pr.CreatedUser)
+                    //    {
+                    //        pr.Nextapprover = pr.CreatedUser;
+                    //    }
+                    //    else
+                    //    {
+                    //        pr.Nextapprover = clarify_user.UserId;
+                    //        pr.ToEmail = clarify_user.Email;
+                    //    }
+                    //}
+                    //else
+                    //{
+                    //    pr.Nextapprover = pr.CreatedUser;
+                    //    var prapp = await dbContext.Prapprovals.Where(a => a.UserId.Equals(pr.CreatedUser, StringComparison.CurrentCultureIgnoreCase) && a.DocKey == pr.DocKey).FirstOrDefaultAsync();
+                    //    if (prapp != null)
+                    //    {
+                    //        prapp.MailStatus = "W";
+                    //        await dbContext.SaveChangesAsync();
+                    //    }
+                    //}
+                    //ToUser = pr.CreatedUser;
                 }
                 command.IsClarify = "N";
                 command.ToUserCode = pr.Nextapprover;
                 command.BaseType = "PR";
                 pr.MailAction = "Y";
                 await dbContext.SaveChangesAsync();
-                if ( clarify!=null &&clarify.Email != null)
-                {
-                    command.Comment = clarify_user.Name + " _ " + command.Comment;
-                }
+                //if (clarify != null && clarify.Email != null)
+                //{
+                //    command.Comment = clarify_user.Name + " _ " + command.Comment;
+                //}
+                command.Comment = command.Comment;
                 await dbContext.DocumentComments.AddRangeAsync(command);
                 await dbContext.SaveChangesAsync();
 
@@ -500,17 +886,22 @@ namespace ePR_App_Api.Controllers
                 await dbContext.DocumentChangeLogs.AddAsync(c);
                 await dbContext.SaveChangesAsync();
 
-                if (clarify != null && clarify.Email != null)
-                {
-                    Prclarify pc = new Prclarify();
-                    pc = clarify;
-                    pc.UserId = clarify_user.UserId;
-                    pc.CreatedDate = DateTime.Now;
-                    pc.MailStatus = "W";
-                    await dbContext.Prclarifies.AddAsync(pc);
-                    await dbContext.SaveChangesAsync();
-                }
+                //if (clarify != null && clarify.Email != null)
+                //{
+                //    Prclarify pc = new Prclarify();
+                //    pc = clarify;
+                //    pc.UserId = clarify_user.UserId;
+                //    pc.CreatedDate = DateTime.Now;
+                //    pc.MailStatus = "W";
+                //    await dbContext.Prclarifies.AddAsync(pc);
+                //    await dbContext.SaveChangesAsync();
+                //}
                 await dbContext.Database.ExecuteSqlRawAsync(string.Format("EXEC ICC_Auto_Check_Notification '{0}','{1}','{2}','{3}'", command.BaseType, command.BaseDocNum, command.UserCode, command.Comment));
+
+                var Vpr = await dbContext.VPrs.Where(a => a.DocKey.ToString() == command.BaseDocNum).FirstOrDefaultAsync();
+                await Send_Notification(ToUser, Vpr.Not_Title, Vpr.Not_Body, Vpr.DocNum, Vpr.DocKey.ToString(), "PR");
+
+
                 return Ok(new
                 {
                     success = true,
@@ -527,6 +918,7 @@ namespace ePR_App_Api.Controllers
                 });
             }
         }
+
         [HttpGet("GetPRSummary")]
         public async Task<IActionResult> GetPRSummary(int? dockey)
         {

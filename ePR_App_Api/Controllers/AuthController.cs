@@ -1,5 +1,6 @@
 ﻿using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
+using System.Threading.Tasks;
 using Azure.Core.Pipeline;
 using ePR_App_Api.Data;
 using ePR_App_Api.Models;
@@ -28,7 +29,7 @@ namespace ePR_App_Api.Controllers
         }
         [AllowAnonymous]
         [HttpGet("GetLogin")]
-        public async Task<IActionResult> GetLogin(string email, string password)
+        public async Task<IActionResult> GetLogin(string email, string password,string? deviceid)
         {
             try
             {
@@ -40,6 +41,10 @@ namespace ePR_App_Api.Controllers
                 else
                 {
                     var token = _tokenService.GenerateToken(email);
+                    //upodate user table
+                    user.DeviceID = deviceid;
+                    await dbContext.SaveChangesAsync();
+                    //
                     return Ok(new { success = true, token, user });
                 }
             }
@@ -57,7 +62,7 @@ namespace ePR_App_Api.Controllers
         // ---------------- Active Directory Login ----------------
         [AllowAnonymous]
         [HttpGet("LoginAD")]
-        public IActionResult LoginAD(string login, string password, [FromServices] AdService adService)
+        public async Task<IActionResult> LoginAD(string login, string password,string? deviceid, [FromServices] AdService adService)
         {
             try
             {
@@ -69,8 +74,16 @@ namespace ePR_App_Api.Controllers
 
                 // Generate JWT token using sAMAccountName as unique identity
                 var username = result.Properties["sAMAccountName"]?[0]?.ToString();
-                var token = _tokenService.GenerateToken(username ?? login);
 
+                var token = _tokenService.GenerateToken(username ?? login);
+                //upodate user table
+                var user =await dbContext.Users.Where(x => x.UserId == login || x.Email == login).FirstOrDefaultAsync();
+                if (user != null)
+                {
+                    user.DeviceID = deviceid;
+                    await dbContext.SaveChangesAsync();
+                }
+                //
                 return Ok(new
                 {
                     success = true,

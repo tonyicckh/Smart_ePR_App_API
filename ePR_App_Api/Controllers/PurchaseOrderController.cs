@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
-using ePR_App_Api.Data;
+﻿using ePR_App_Api.Data;
 using ePR_App_Api.Models;
+using FirebaseAdmin.Messaging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace ePR_App_Api.Controllers
 {
@@ -68,6 +69,84 @@ namespace ePR_App_Api.Controllers
                     message = "Internal Server Error",
                     details = ex.Message
                 });
+            }
+        }
+
+        [HttpGet("GetPAPending")] // keeping GET since you call it at login
+        public async Task<IActionResult> GetPAPending(string userCode)
+        {
+            try
+            {
+                var paList = await dbContext.VPas
+                    .Where(x => x.NextApprover == userCode && (x.DocStatus == "Pending"))
+                    .ToListAsync();
+
+                foreach (var x in paList)
+                {
+                    if (string.IsNullOrWhiteSpace(x.NextApprover)) continue;
+
+                    var topic = $"user_{x.NextApprover}"; // match the topic subscribe to in Flutter
+
+                    var msg = new Message
+                    {
+                        Topic = topic,
+
+                        // Shows banner in background/terminated
+                        Notification = new Notification
+                        {
+                            //Title = "PA Approval Needed",
+                            //Body = $"You have a new PA ({x.Panum}) to approve."
+                            Title = x.Not_Title,
+                            Body = x.Not_Body
+                        },
+
+                        // Always include data for navigation on tap
+                        Data = new Dictionary<string, string>
+                        {
+                            ["type"] = "PA",
+                            ["docNum"] = x.Panum?.ToString() ?? "",
+                            ["docKey"] = x.Panum?.ToString() ?? "",
+                            ["route"] = $"/pa/{x.Panum}"
+                        },
+
+                        Android = new AndroidConfig
+                        {
+                            Priority = Priority.High,
+                            //TTL = TimeSpan.FromHours(6),
+                            CollapseKey = "pa_pending",
+                            Notification = new AndroidNotification
+                            {
+                                ChannelId = "high_importance",          // must exist in Flutter
+                                ClickAction = "FLUTTER_NOTIFICATION_CLICK",
+                                Tag = $"pa-{x.Panum}"
+                            }
+                        },
+
+                        Apns = new ApnsConfig
+                        {
+                            Headers = new Dictionary<string, string>
+                            {
+                                ["apns-priority"] = "10"               // deliver immediately
+                            },
+                            Aps = new Aps
+                            {
+                                Sound = "default",
+                                Badge = 1,
+                                ThreadId = "pa_pending"
+                            }
+                        }
+                    };
+
+                    var id = await FirebaseMessaging.DefaultInstance.SendAsync(msg);
+                    Console.WriteLine($"FCM sent to {topic}: {id}");
+                }
+
+                return Ok(new { success = true, sent = paList.Count });
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine(ex);
+                return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
 
@@ -245,6 +324,36 @@ namespace ePR_App_Api.Controllers
                 });
             }
         }
+
+        // GET: PAGetComments
+        [HttpGet("PAGetComments")]
+        public async Task<IActionResult> GetComments(string baseDocNum)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(baseDocNum))
+                {
+                    return BadRequest("Invalid key");
+                }
+                var comment = await dbContext.VDocumentComments.Where(x => x.BaseDocNum == baseDocNum && x.BaseType == "PA").OrderByDescending(x => x.CreatedDate).ToListAsync();
+                return Ok(new
+                {
+                    success = true,
+                    message = "Success",
+                    data = comment
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Internal Server Error",
+                    details = ex.Message
+                });
+            }
+        }
+
         [HttpPost("ReplyComment")]
         public async Task<IActionResult> ReplyComment([FromBody] ReplyCommentRequest? request)
         {
@@ -266,7 +375,7 @@ namespace ePR_App_Api.Controllers
                     pa.DocStatus = "Pending";
                     pa.NextApprover = pa.HeaderText;
 
-                    var paapp = await dbContext.Paapprovals.Where(a => a.UserId.Equals(pa.HeaderText, StringComparison.CurrentCultureIgnoreCase) && a.Panum == pa.Panum).FirstOrDefaultAsync();
+                    var paapp = await dbContext.Paapprovals.Where(a => a.UserId.ToLower() == pa.HeaderText.ToLower() && a.Panum == pa.Panum).FirstOrDefaultAsync();
                     if (paapp != null)
                     {
                         paapp.MailStatus = "Z";
@@ -281,7 +390,7 @@ namespace ePR_App_Api.Controllers
                     pa.DocStatus = "Clarify";
                     pa.HeaderText = pa.NextApprover;
                     pa.NextApprover = pa.CreatedBy;
-                    var paapp = await dbContext.Paapprovals.Where(a => a.UserId.Equals(pa.HeaderText, StringComparison.CurrentCultureIgnoreCase) && a.Panum == pa.Panum).FirstOrDefaultAsync();
+                    var paapp = await dbContext.Paapprovals.Where(a => a.UserId != null && pa.HeaderText != null && a.UserId.ToLower() == pa.HeaderText.ToLower() && a.Panum == pa.Panum).FirstOrDefaultAsync();
                     if (paapp != null)
                     {
                         paapp.MailStatus = "W";

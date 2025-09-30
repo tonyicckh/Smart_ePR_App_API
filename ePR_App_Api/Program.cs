@@ -1,5 +1,7 @@
 using ePR_App_Api.Data;
 using ePR_App_Api.Models;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,6 +27,16 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials());
+});
+
+
+// Read key path from configuration
+var serviceAccountPath = builder.Configuration["Firebase:ServiceAccountKeyPath"];
+
+// Initialize Firebase Admin SDK
+FirebaseApp.Create(new AppOptions()
+{
+    Credential = GoogleCredential.FromFile(serviceAccountPath)
 });
 
 // Add IHttpContextAccessor (required by AppCoreContext)

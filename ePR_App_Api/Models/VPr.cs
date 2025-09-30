@@ -170,4 +170,6 @@ public partial class VPr
     public string ToUserId { get; set; } = null!;
 
     public string BlockPa { get; set; } = null!;
+    public string Not_Title { get; set; }
+    public string Not_Body { get; set; }
 }

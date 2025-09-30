@@ -40,4 +40,6 @@ public partial class User
     public DateTime? StartDate { get; set; }
 
     public DateTime? EndDate { get; set; }
+
+    public string? DeviceID { get; set; }
 }

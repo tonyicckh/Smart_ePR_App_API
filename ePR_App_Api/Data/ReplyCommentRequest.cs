@@ -6,6 +6,6 @@ namespace ePR_App_Api.Data
     {
         public ReplyCommentRequest() { }
         public DocumentComment Comment { get; set; }
-        public Prclarify Clarify { get; set; }
+        //public Prclarify Clarify { get; set; }
     }
 }
