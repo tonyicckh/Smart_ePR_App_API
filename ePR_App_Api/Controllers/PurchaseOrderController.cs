@@ -325,34 +325,34 @@ namespace ePR_App_Api.Controllers
             }
         }
 
-        //// GET: PAGetComments
-        //[HttpGet("PAGetComments")]
-        //public async Task<IActionResult> GetComments(string baseDocNum)
-        //{
-        //    try
-        //    {
-        //        if (string.IsNullOrWhiteSpace(baseDocNum))
-        //        {
-        //            return BadRequest("Invalid key");
-        //        }
-        //        var comment = await dbContext.VDocumentComments.Where(x => x.BaseDocNum == baseDocNum && x.BaseType == "PA").OrderByDescending(x => x.CreatedDate).ToListAsync();
-        //        return Ok(new
-        //        {
-        //            success = true,
-        //            message = "Success",
-        //            data = comment
-        //        });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, new
-        //        {
-        //            success = false,
-        //            message = "Internal Server Error",
-        //            details = ex.Message
-        //        });
-        //    }
-        //}
+        // GET: PAGetComments
+        [HttpGet("PAGetComments")]
+        public async Task<IActionResult> GetComments(string baseDocNum)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(baseDocNum))
+                {
+                    return BadRequest("Invalid key");
+                }
+                var comment = await dbContext.VDocumentComments.Where(x => x.BaseDocNum == baseDocNum && x.BaseType == "PA").OrderByDescending(x => x.CreatedDate).ToListAsync();
+                return Ok(new
+                {
+                    success = true,
+                    message = "Success",
+                    data = comment
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Internal Server Error",
+                    details = ex.Message
+                });
+            }
+        }
 
         [HttpPost("ReplyComment")]
         public async Task<IActionResult> ReplyComment([FromBody] ReplyCommentRequest? request)
