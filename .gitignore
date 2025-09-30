@@ -30,3 +30,5 @@ ePR_App_Api/**/Properties/keys/serviceAccountKey.json
 *.lock
 *.tmp
 *.cache
+
+**/serviceAccountKey.json
