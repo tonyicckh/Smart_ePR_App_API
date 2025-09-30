@@ -1,0 +1,142 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\ICCKH\\Smart ePR\\Smart_ePR_App_API\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{9E4AE7EE-0F27-47B7-A955-6828E3AAE8B9}|ePR_App_Api\\ePR_App_Api.csproj|d:\\icckh\\smart epr\\smart_epr_app_api\\epr_app_api\\controllers\\purchaserequestcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9E4AE7EE-0F27-47B7-A955-6828E3AAE8B9}|ePR_App_Api\\ePR_App_Api.csproj|solutionrelative:epr_app_api\\controllers\\purchaserequestcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9E4AE7EE-0F27-47B7-A955-6828E3AAE8B9}|ePR_App_Api\\ePR_App_Api.csproj|d:\\icckh\\smart epr\\smart_epr_app_api\\epr_app_api\\data\\replycommentrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9E4AE7EE-0F27-47B7-A955-6828E3AAE8B9}|ePR_App_Api\\ePR_App_Api.csproj|solutionrelative:epr_app_api\\data\\replycommentrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9E4AE7EE-0F27-47B7-A955-6828E3AAE8B9}|ePR_App_Api\\ePR_App_Api.csproj|d:\\icckh\\smart epr\\smart_epr_app_api\\epr_app_api\\controllers\\purchaseordercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9E4AE7EE-0F27-47B7-A955-6828E3AAE8B9}|ePR_App_Api\\ePR_App_Api.csproj|solutionrelative:epr_app_api\\controllers\\purchaseordercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9E4AE7EE-0F27-47B7-A955-6828E3AAE8B9}|ePR_App_Api\\ePR_App_Api.csproj|d:\\icckh\\smart epr\\smart_epr_app_api\\epr_app_api\\data\\documentaction.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9E4AE7EE-0F27-47B7-A955-6828E3AAE8B9}|ePR_App_Api\\ePR_App_Api.csproj|solutionrelative:epr_app_api\\data\\documentaction.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9E4AE7EE-0F27-47B7-A955-6828E3AAE8B9}|ePR_App_Api\\ePR_App_Api.csproj|d:\\icckh\\smart epr\\smart_epr_app_api\\epr_app_api\\models\\vpa.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9E4AE7EE-0F27-47B7-A955-6828E3AAE8B9}|ePR_App_Api\\ePR_App_Api.csproj|solutionrelative:epr_app_api\\models\\vpa.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9E4AE7EE-0F27-47B7-A955-6828E3AAE8B9}|ePR_App_Api\\ePR_App_Api.csproj|d:\\icckh\\smart epr\\smart_epr_app_api\\epr_app_api\\models\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9E4AE7EE-0F27-47B7-A955-6828E3AAE8B9}|ePR_App_Api\\ePR_App_Api.csproj|solutionrelative:epr_app_api\\models\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9E4AE7EE-0F27-47B7-A955-6828E3AAE8B9}|ePR_App_Api\\ePR_App_Api.csproj|d:\\icckh\\smart epr\\smart_epr_app_api\\epr_app_api\\models\\vpr.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9E4AE7EE-0F27-47B7-A955-6828E3AAE8B9}|ePR_App_Api\\ePR_App_Api.csproj|solutionrelative:epr_app_api\\models\\vpr.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 1,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedHeight": 353,
+          "SelectedChildIndex": 7,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "AppDbContext.cs",
+              "DocumentMoniker": "D:\\ICCKH\\Smart ePR\\Smart_ePR_App_API\\ePR_App_Api\\Models\\AppDbContext.cs",
+              "RelativeDocumentMoniker": "ePR_App_Api\\Models\\AppDbContext.cs",
+              "ToolTip": "D:\\ICCKH\\Smart ePR\\Smart_ePR_App_API\\ePR_App_Api\\Models\\AppDbContext.cs",
+              "RelativeToolTip": "ePR_App_Api\\Models\\AppDbContext.cs",
+              "ViewState": "AgIAAGMJAAAAAAAAAAAIwHEJAAArAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-20T04:56:58.111Z",
+              "IsPinned": true
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{40ea2e6b-2121-4bb8-a43e-c83c04b51041}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ReplyCommentRequest.cs",
+              "DocumentMoniker": "D:\\ICCKH\\Smart ePR\\Smart_ePR_App_API\\ePR_App_Api\\Data\\ReplyCommentRequest.cs",
+              "RelativeDocumentMoniker": "ePR_App_Api\\Data\\ReplyCommentRequest.cs",
+              "ToolTip": "D:\\ICCKH\\Smart ePR\\Smart_ePR_App_API\\ePR_App_Api\\Data\\ReplyCommentRequest.cs",
+              "RelativeToolTip": "ePR_App_Api\\Data\\ReplyCommentRequest.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAuwAsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-27T16:38:56.288Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "VPa.cs",
+              "DocumentMoniker": "D:\\ICCKH\\Smart ePR\\Smart_ePR_App_API\\ePR_App_Api\\Models\\VPa.cs",
+              "RelativeDocumentMoniker": "ePR_App_Api\\Models\\VPa.cs",
+              "ToolTip": "D:\\ICCKH\\Smart ePR\\Smart_ePR_App_API\\ePR_App_Api\\Models\\VPa.cs",
+              "RelativeToolTip": "ePR_App_Api\\Models\\VPa.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-26T07:36:43.576Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "VPr.cs",
+              "DocumentMoniker": "D:\\ICCKH\\Smart ePR\\Smart_ePR_App_API\\ePR_App_Api\\Models\\VPr.cs",
+              "RelativeDocumentMoniker": "ePR_App_Api\\Models\\VPr.cs",
+              "ToolTip": "D:\\ICCKH\\Smart ePR\\Smart_ePR_App_API\\ePR_App_Api\\Models\\VPr.cs",
+              "RelativeToolTip": "ePR_App_Api\\Models\\VPr.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAjAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-26T06:59:15.752Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "PurchaseOrderController.cs",
+              "DocumentMoniker": "D:\\ICCKH\\Smart ePR\\Smart_ePR_App_API\\ePR_App_Api\\Controllers\\PurchaseOrderController.cs",
+              "RelativeDocumentMoniker": "ePR_App_Api\\Controllers\\PurchaseOrderController.cs",
+              "ToolTip": "D:\\ICCKH\\Smart ePR\\Smart_ePR_App_API\\ePR_App_Api\\Controllers\\PurchaseOrderController.cs",
+              "RelativeToolTip": "ePR_App_Api\\Controllers\\PurchaseOrderController.cs",
+              "ViewState": "AgIAAD0BAAAAAAAAAAAkwEcBAAAfAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-26T07:34:59.144Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "PurchaseRequestController.cs",
+              "DocumentMoniker": "D:\\ICCKH\\Smart ePR\\Smart_ePR_App_API\\ePR_App_Api\\Controllers\\PurchaseRequestController.cs",
+              "RelativeDocumentMoniker": "ePR_App_Api\\Controllers\\PurchaseRequestController.cs",
+              "ToolTip": "D:\\ICCKH\\Smart ePR\\Smart_ePR_App_API\\ePR_App_Api\\Controllers\\PurchaseRequestController.cs",
+              "RelativeToolTip": "ePR_App_Api\\Controllers\\PurchaseRequestController.cs",
+              "ViewState": "AgIAAB4AAAAAAAAAAAAYwC0AAAAmAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-29T08:25:23.926Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "DocumentAction.cs",
+              "DocumentMoniker": "D:\\ICCKH\\Smart ePR\\Smart_ePR_App_API\\ePR_App_Api\\Data\\DocumentAction.cs",
+              "RelativeDocumentMoniker": "ePR_App_Api\\Data\\DocumentAction.cs",
+              "ToolTip": "D:\\ICCKH\\Smart ePR\\Smart_ePR_App_API\\ePR_App_Api\\Data\\DocumentAction.cs",
+              "RelativeToolTip": "ePR_App_Api\\Data\\DocumentAction.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAuwA0AAAAPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-26T09:38:01.642Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

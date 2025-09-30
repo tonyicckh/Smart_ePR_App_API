@@ -172,4 +172,6 @@ public partial class VPa
     public string? Remark { get; set; }
 
     public string? CmtClarify { get; set; }
+    public string Not_Title { get; set; }
+    public string Not_Body { get; set; }
 }

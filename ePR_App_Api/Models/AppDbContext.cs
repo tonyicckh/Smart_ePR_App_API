@@ -1580,6 +1580,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.StandBy).HasMaxLength(100);
             entity.Property(e => e.StartDate).HasColumnType("datetime");
             entity.Property(e => e.UserGroup).HasMaxLength(100);
+            entity.Property(e=>e.DeviceID).HasMaxLength(500);
         });
 
         modelBuilder.Entity<VBudget>(entity =>
@@ -1976,6 +1977,8 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.TermRemark).HasMaxLength(100);
             entity.Property(e => e.UpdatedBy).HasMaxLength(50);
             entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
+            entity.Property(e => e.Not_Title).HasColumnName("Not_Title");
+            entity.Property(e => e.Not_Body).HasColumnName("Not_Body");
         });
 
         modelBuilder.Entity<VPa1>(entity =>
@@ -2408,6 +2411,8 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
             entity.Property(e => e.UpdatedUser).HasMaxLength(30);
             entity.Property(e => e.WaveApprovedStatus).HasMaxLength(20);
+            entity.Property(e => e.Not_Title).HasColumnName("Not_Title");
+            entity.Property(e => e.Not_Body).HasColumnName("Not_Body");
         });
 
         modelBuilder.Entity<VPr1>(entity =>
