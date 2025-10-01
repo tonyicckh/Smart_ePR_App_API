@@ -327,30 +327,26 @@ namespace ePR_App_Api.Controllers
 
         // GET: PAGetComments
         [HttpGet("PAGetComments")]
-        public async Task<IActionResult> GetComments(string baseDocNum)
+        public async Task<IActionResult> GetComments([FromQuery] string baseDocNum)
         {
             try
             {
                 if (string.IsNullOrWhiteSpace(baseDocNum))
-                {
                     return BadRequest("Invalid key");
-                }
-                var comment = await dbContext.VDocumentComments.Where(x => x.BaseDocNum == baseDocNum && x.BaseType == "PA").OrderByDescending(x => x.CreatedDate).ToListAsync();
-                return Ok(new
-                {
-                    success = true,
-                    message = "Success",
-                    data = comment
-                });
+
+                var key = baseDocNum.Trim();
+
+                var data = await dbContext.DocumentComments   // << was VDocumentComments
+                    .AsNoTracking()
+                    .Where(x => x.BaseType == "PA" && x.BaseDocNum.Trim() == key)
+                    .OrderByDescending(x => x.CreatedDate)
+                    .ToListAsync();
+
+                return Ok(new { success = true, message = "Success", data });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Internal Server Error",
-                    details = ex.Message
-                });
+                return StatusCode(500, new { success = false, message = "Internal Server Error", details = ex.Message });
             }
         }
 
