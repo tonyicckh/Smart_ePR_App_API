@@ -5,9 +5,9 @@ namespace ePR_App_Api.Models;
 
 public partial class VPaapproval
 {
-    public string Panum { get; set; } = null!;
+    public string? Panum { get; set; } 
 
-    public string UserId { get; set; } = null!;
+    public string? UserId { get; set; }
 
     public string? DocStatus { get; set; }
 

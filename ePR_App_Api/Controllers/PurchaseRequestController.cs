@@ -469,55 +469,55 @@ namespace ePR_App_Api.Controllers
         // -----------------------------------------------------------------------------
         // Helper: send to FCM topic with consistent Android/APNs config
         // -----------------------------------------------------------------------------
-        private static async Task<string> SendTopicAsync(
-            string topic,
-            string title,
-            string body,
-            Dictionary<string, string> data,
-            string collapseKey,
-            string tag)
-        {
-            var msg = new Message
-            {
-                Topic = topic,
+        //private static async Task<string> SendTopicAsync(
+        //    string topic,
+        //    string title,
+        //    string body,
+        //    Dictionary<string, string> data,
+        //    string collapseKey,
+        //    string tag)
+        //{
+        //    var msg = new Message
+        //    {
+        //        Topic = topic,
 
-                Notification = new Notification
-                {
-                    Title = title,
-                    Body = body
-                },
+        //        Notification = new Notification
+        //        {
+        //            Title = title,
+        //            Body = body
+        //        },
 
-                Data = data,
+        //        Data = data,
 
-                Android = new AndroidConfig
-                {
-                    Priority = Priority.High,
-                    CollapseKey = collapseKey,
-                    Notification = new AndroidNotification
-                    {
-                        ChannelId = "high_importance",
-                        ClickAction = "FLUTTER_NOTIFICATION_CLICK",
-                        Tag = tag
-                    }
-                },
+        //        Android = new AndroidConfig
+        //        {
+        //            Priority = Priority.High,
+        //            CollapseKey = collapseKey,
+        //            Notification = new AndroidNotification
+        //            {
+        //                ChannelId = "high_importance",
+        //                ClickAction = "FLUTTER_NOTIFICATION_CLICK",
+        //                Tag = tag
+        //            }
+        //        },
 
-                Apns = new ApnsConfig
-                {
-                    Headers = new Dictionary<string, string>
-                    {
-                        ["apns-priority"] = "10"
-                    },
-                    Aps = new Aps
-                    {
-                        Sound = "default",
-                        Badge = 1,
-                        ThreadId = collapseKey
-                    }
-                }
-            };
+        //        Apns = new ApnsConfig
+        //        {
+        //            Headers = new Dictionary<string, string>
+        //            {
+        //                ["apns-priority"] = "10"
+        //            },
+        //            Aps = new Aps
+        //            {
+        //                Sound = "default",
+        //                Badge = 1,
+        //                ThreadId = collapseKey
+        //            }
+        //        }
+        //    };
 
-            return await FirebaseMessaging.DefaultInstance.SendAsync(msg);
-        }
+        //    return await FirebaseMessaging.DefaultInstance.SendAsync(msg);
+        //}
 
 
 

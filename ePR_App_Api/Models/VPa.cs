@@ -7,7 +7,7 @@ public partial class VPa
 {
     public long? Rownum { get; set; }
 
-    public string Panum { get; set; } = null!;
+    public string? Panum { get; set; }
 
     public string? CardCode { get; set; }
 
@@ -133,11 +133,13 @@ public partial class VPa
 
     public string? ApproveStatus { get; set; }
 
-    public string CardPhone { get; set; } = null!;
+    //public string CardPhone { get; set; } = null!;
+    public string? CardPhone { get; set; }
 
     public string? FullPayment { get; set; }
 
-    public string IntStatus { get; set; } = null!;
+    //public string IntStatus { get; set; } = null!;
+    public string? IntStatus { get; set; }
 
     public string? LastError { get; set; }
 
@@ -172,6 +174,7 @@ public partial class VPa
     public string? Remark { get; set; }
 
     public string? CmtClarify { get; set; }
-    public string Not_Title { get; set; }
-    public string Not_Body { get; set; }
+    //public string Not_Title { get; set; }
+    public string? Not_Title { get; set; }
+    public string? Not_Body { get; set; }
 }

@@ -1,15 +1,16 @@
-﻿using System.DirectoryServices;
-using System.DirectoryServices.AccountManagement;
-using System.Threading.Tasks;
-using Azure.Core.Pipeline;
+﻿using Azure.Core.Pipeline;
 using ePR_App_Api.Data;
 using ePR_App_Api.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Amqp.Framing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using System.DirectoryServices;
+using System.DirectoryServices.AccountManagement;
+using System.Threading.Tasks;
 
 namespace ePR_App_Api.Controllers
 {
@@ -62,22 +63,22 @@ namespace ePR_App_Api.Controllers
         // ---------------- Active Directory Login ----------------
         [AllowAnonymous]
         [HttpGet("LoginAD")]
-        public async Task<IActionResult> LoginAD(string login, string password,string? deviceid, [FromServices] AdService adService)
+        public async Task<IActionResult> LoginAD(string email, string password,string? deviceid, [FromServices] AdService adService)
         {
             try
             {
-                if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(password))
+                if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
                     return BadRequest(new { success = false, message = "Username/Email and password are required" });
 
-                if (!adService.ValidateUser(login, password, out var result))
+                if (!adService.ValidateUser(email, password, out var result))
                     return Unauthorized(new { success = false, message = "Invalid username/email or password" });
 
                 // Generate JWT token using sAMAccountName as unique identity
-                var username = result.Properties["sAMAccountName"]?[0]?.ToString();
+                var userId = result.Properties["sAMAccountName"]?[0]?.ToString();
 
-                var token = _tokenService.GenerateToken(username ?? login);
+                var token = _tokenService.GenerateToken(userId ?? email);
                 //upodate user table
-                var user =await dbContext.Users.Where(x => x.UserId == login || x.Email == login).FirstOrDefaultAsync();
+                var user =await dbContext.Users.Where(x => x.UserId == email || x.Email == email).FirstOrDefaultAsync();
                 if (user != null)
                 {
                     user.DeviceID = deviceid;
@@ -90,8 +91,8 @@ namespace ePR_App_Api.Controllers
                     token,
                     user = new
                     {
-                        Username = username,
-                        DisplayName = result.Properties["displayName"]?[0]?.ToString(),
+                        userId = userId,
+                        name = result.Properties["name"]?[0]?.ToString(),
                         Email = result.Properties["mail"]?[0]?.ToString()
                     }
                 });

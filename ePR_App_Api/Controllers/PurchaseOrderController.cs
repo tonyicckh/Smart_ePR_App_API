@@ -21,8 +21,20 @@ namespace ePR_App_Api.Controllers
             _tokenService = tokenService;
             app = _app;
         }
+
         [HttpGet("GetPAList")]
-        public async Task<IActionResult> GetPAList(string userCode, DateTime? fromDate, DateTime? toDate, string? search, string? searchType, string? division,string? department, string? status, int start, int limit)
+        public async Task<IActionResult> GetPAList(
+          string userCode
+          , DateTime? fromDate
+          , DateTime? toDate
+          , string? search
+          , string? searchType
+          , string? division
+          , string? department
+          , string? status
+          , int start
+          , int limit
+         )
         {
             try
             {
@@ -72,83 +84,6 @@ namespace ePR_App_Api.Controllers
             }
         }
 
-        [HttpGet("GetPAPending")] // keeping GET since you call it at login
-        public async Task<IActionResult> GetPAPending(string userCode)
-        {
-            try
-            {
-                var paList = await dbContext.VPas
-                    .Where(x => x.NextApprover == userCode && (x.DocStatus == "Pending"))
-                    .ToListAsync();
-
-                foreach (var x in paList)
-                {
-                    if (string.IsNullOrWhiteSpace(x.NextApprover)) continue;
-
-                    var topic = $"user_{x.NextApprover}"; // match the topic subscribe to in Flutter
-
-                    var msg = new Message
-                    {
-                        Topic = topic,
-
-                        // Shows banner in background/terminated
-                        Notification = new Notification
-                        {
-                            //Title = "PA Approval Needed",
-                            //Body = $"You have a new PA ({x.Panum}) to approve."
-                            Title = x.Not_Title,
-                            Body = x.Not_Body
-                        },
-
-                        // Always include data for navigation on tap
-                        Data = new Dictionary<string, string>
-                        {
-                            ["type"] = "PA",
-                            ["docNum"] = x.Panum?.ToString() ?? "",
-                            ["docKey"] = x.Panum?.ToString() ?? "",
-                            ["route"] = $"/pa/{x.Panum}"
-                        },
-
-                        Android = new AndroidConfig
-                        {
-                            Priority = Priority.High,
-                            //TTL = TimeSpan.FromHours(6),
-                            CollapseKey = "pa_pending",
-                            Notification = new AndroidNotification
-                            {
-                                ChannelId = "high_importance",          // must exist in Flutter
-                                ClickAction = "FLUTTER_NOTIFICATION_CLICK",
-                                Tag = $"pa-{x.Panum}"
-                            }
-                        },
-
-                        Apns = new ApnsConfig
-                        {
-                            Headers = new Dictionary<string, string>
-                            {
-                                ["apns-priority"] = "10"               // deliver immediately
-                            },
-                            Aps = new Aps
-                            {
-                                Sound = "default",
-                                Badge = 1,
-                                ThreadId = "pa_pending"
-                            }
-                        }
-                    };
-
-                    var id = await FirebaseMessaging.DefaultInstance.SendAsync(msg);
-                    Console.WriteLine($"FCM sent to {topic}: {id}");
-                }
-
-                return Ok(new { success = true, sent = paList.Count });
-            }
-            catch (Exception ex)
-            {
-                Console.Error.WriteLine(ex);
-                return StatusCode(500, new { success = false, message = ex.Message });
-            }
-        }
 
         [HttpPost("PADocumentAction")]
         public async Task<IActionResult> PADocumentAction(List<DocumentAction>? actions)
@@ -197,7 +132,12 @@ namespace ePR_App_Api.Controllers
                                     pa.UpdatedDate = DateTime.Now;
                                     pa.UpdatedBy = x.CreatedBy;
                                     await dbContext.SaveChangesAsync();
-                                    await dbContext.Database.ExecuteSqlRawAsync("exec ICC_Set_Next_PA_Approver '" + x.DocNum + "','" + x.CreatedBy + "','" + x.DocStatus.Substring(0, 3) + "'");
+                                    await dbContext.Database.ExecuteSqlRawAsync(
+                                        "exec ICC_Set_Next_PA_Approver '" + 
+                                        x.DocNum + "','" + 
+                                        x.CreatedBy + "','" + 
+                                        x.DocStatus.Substring(0, 3) + "'"
+                                        );
                                     total_success++;
 
                                     DocumentChangeLog change = new DocumentChangeLog();
@@ -209,6 +149,32 @@ namespace ePR_App_Api.Controllers
                                     change.FieldName = x.DocStatus;
                                     await dbContext.DocumentChangeLogs.AddAsync(change);
                                     await dbContext.SaveChangesAsync();
+
+
+                                    if (x.DocStatus == "Approved" || x.DocStatus == "Rejected" || x.DocStatus == "Clarify")
+                                    {
+                                        var Vpa = await dbContext.VPas.Where(a => a.Panum == x.DocNum).FirstOrDefaultAsync();
+                                        if (Vpa != null)
+                                        {
+                                            var toUser = Vpa.DocStatus == "Pending" ? Vpa.NextApprover : Vpa.CreatedBy;
+                                            var topic = $"user_{toUser}";
+                                            var data = new Dictionary<string, string>
+                                            {
+                                                ["type"] = "PA",
+                                                ["docNum"] = Vpa.Panum?.ToString() ?? "",
+                                                ["docKey"] = Vpa.Panum?.ToString() ?? "",
+                                                ["route"] = $"/pa/{Vpa.Panum}"
+                                            };
+                                            await SendTopicAsync(
+                                                topic,
+                                                Vpa.Not_Title,
+                                                Vpa.Not_Body,
+                                                data,
+                                                "pa_pending",
+                                                $"pa-{Vpa.Panum}"
+                                            );
+                                        }
+                                    }
                                 }
                             }
                             catch (Exception ex)
@@ -240,6 +206,61 @@ namespace ePR_App_Api.Controllers
                 });
             }
         }
+
+
+        // -----------------------------------------------------------------------------
+        // Helper: send to FCM topic with consistent Android/APNs config
+        // -----------------------------------------------------------------------------
+        private static async Task<string> SendTopicAsync(
+            string topic,
+            string title,
+            string body,
+            Dictionary<string, string> data,
+            string collapseKey,
+            string tag)
+        {
+            var msg = new Message
+            {
+                Topic = topic,
+
+                Notification = new Notification
+                {
+                    Title = title,
+                    Body = body
+                },
+
+                Data = data,
+
+                Android = new AndroidConfig
+                {
+                    Priority = Priority.High,
+                    CollapseKey = collapseKey,
+                    Notification = new AndroidNotification
+                    {
+                        ChannelId = "high_importance",
+                        ClickAction = "FLUTTER_NOTIFICATION_CLICK",
+                        Tag = tag
+                    }
+                },
+
+                Apns = new ApnsConfig
+                {
+                    Headers = new Dictionary<string, string>
+                    {
+                        ["apns-priority"] = "10"
+                    },
+                    Aps = new Aps
+                    {
+                        Sound = "default",
+                        Badge = 1,
+                        ThreadId = collapseKey
+                    }
+                }
+            };
+
+            return await FirebaseMessaging.DefaultInstance.SendAsync(msg);
+        }
+
 
         [HttpGet("GetPADetail")]
         public async Task<IActionResult> GetPRDetail(string? Key)
@@ -355,6 +376,7 @@ namespace ePR_App_Api.Controllers
         {
             try
             {
+                string ToUser = "";
                 if (request == null)
                 {
                     return BadRequest("Invalid model");
@@ -363,22 +385,14 @@ namespace ePR_App_Api.Controllers
                 var pa = await dbContext.Pas.Where(x => x.Panum.ToString() == command.BaseDocNum).FirstOrDefaultAsync();
                 if (pa == null)
                 {
-                    return NotFound("PR Notfound");
+                    return NotFound("Pa Notfound");
                 }
-                if (pa.CreatedBy == command.UserCode)
+                if (pa.CreatedBy == command.UserCode && pa.DocStatus == "Clarify")
                 {
-                    //Requester clarify to approver
+                    ToUser = pa.HeaderText;
                     pa.DocStatus = "Pending";
                     pa.NextApprover = pa.HeaderText;
-
-                    var paapp = await dbContext.Paapprovals.Where(a => a.UserId.ToLower() == pa.HeaderText.ToLower() && a.Panum == pa.Panum).FirstOrDefaultAsync();
-                    if (paapp != null)
-                    {
-                        paapp.MailStatus = "Z";
-                        await dbContext.SaveChangesAsync();
-                    }
                     pa.HeaderText = pa.CreatedBy;
-                    await dbContext.SaveChangesAsync();
                 }
                 else
                 {
@@ -386,19 +400,17 @@ namespace ePR_App_Api.Controllers
                     pa.DocStatus = "Clarify";
                     pa.HeaderText = pa.NextApprover;
                     pa.NextApprover = pa.CreatedBy;
-                    var paapp = await dbContext.Paapprovals.Where(a => a.UserId != null && pa.HeaderText != null && a.UserId.ToLower() == pa.HeaderText.ToLower() && a.Panum == pa.Panum).FirstOrDefaultAsync();
-                    if (paapp != null)
-                    {
-                        paapp.MailStatus = "W";
-                        await dbContext.SaveChangesAsync();
-                    }
-                    await dbContext.SaveChangesAsync();
+                    ToUser = pa.CreatedBy;
                 }
                 command.IsClarify = "N";
                 command.ToUserCode = pa.NextApprover;
                 command.BaseType = "PA";
-                await dbContext.DocumentComments.AddAsync(command);
+                pa.MailAction = "Y";
                 await dbContext.SaveChangesAsync();
+                command.Comment = command.Comment;
+                await dbContext.DocumentComments.AddRangeAsync(command);
+                await dbContext.SaveChangesAsync();
+
                 //change log
                 DocumentChangeLog c = new DocumentChangeLog();
                 c.BaseDocNum = command.BaseDocNum;
@@ -406,12 +418,30 @@ namespace ePR_App_Api.Controllers
                 c.FieldName = "Reply comment";
                 c.NewVal = command.Comment;
                 c.UserCode = command.UserCode;
-                c.BaseType = "PA";
+                c.BaseType = "PR";
                 c.CreatedDate = DateTime.Now;
+
                 await dbContext.DocumentChangeLogs.AddAsync(c);
                 await dbContext.SaveChangesAsync();
 
                 await dbContext.Database.ExecuteSqlRawAsync(string.Format("EXEC ICC_Auto_Check_Notification '{0}','{1}','{2}','{3}'", command.BaseType, command.BaseDocNum, command.UserCode, command.Comment));
+
+                var Vpa = await dbContext.VPas.Where(a => a.Panum.ToString() == command.BaseDocNum).FirstOrDefaultAsync();
+                await SendTopicAsync(
+                    $"user_{ToUser}",
+                    Vpa.Not_Title,
+                    Vpa.Not_Body,
+                    new Dictionary<string, string>
+                    {
+                        ["type"] = "PA",
+                        ["docNum"] = Vpa.Panum?.ToString() ?? "",
+                        ["docKey"] = Vpa.Panum?.ToString() ?? "",
+                        ["route"] = $"/pa/{Vpa.Panum}"
+                    },
+                    "pa_pending",
+                    $"pa-{Vpa.Panum}"
+                );
+
                 return Ok(new
                 {
                     success = true,
@@ -428,6 +458,7 @@ namespace ePR_App_Api.Controllers
                 });
             }
         }
+
         [HttpGet("GetPASummary")]
         public async Task<IActionResult> GetPASummary(string? panum)
         {
