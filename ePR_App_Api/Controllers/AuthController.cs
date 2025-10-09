@@ -74,7 +74,10 @@ namespace ePR_App_Api.Controllers
                     return Unauthorized(new { success = false, message = "Invalid username/email or password" });
 
                 // Generate JWT token using sAMAccountName as unique identity
-                var userId = result.Properties["sAMAccountName"]?[0]?.ToString();
+                //var userId = result.Properties["sAMAccountName"]?[0]?.ToString();
+                var userId = result.Properties["sAMAccountName"] != null && result.Properties["sAMAccountName"].Count > 0
+                    ? result.Properties["sAMAccountName"][0]?.ToString()
+                    : null;
 
                 var token = _tokenService.GenerateToken(userId ?? email);
                 //upodate user table
@@ -84,17 +87,14 @@ namespace ePR_App_Api.Controllers
                     user.DeviceID = deviceid;
                     await dbContext.SaveChangesAsync();
                 }
+                dbContext.Entry(user).Reload();
+                await dbContext.Users.Where(x => x.UserId == email || x.Email == email).FirstOrDefaultAsync();
                 //
                 return Ok(new
                 {
                     success = true,
                     token,
-                    user = new
-                    {
-                        userId = userId,
-                        name = result.Properties["name"]?[0]?.ToString(),
-                        Email = result.Properties["mail"]?[0]?.ToString()
-                    }
+                    user
                 });
             }
             catch (Exception ex)
@@ -102,7 +102,5 @@ namespace ePR_App_Api.Controllers
                 return StatusCode(500, new { success = false, message = "Internal Server Error", details = ex.Message });
             }
         }
-
-
     }
 }
